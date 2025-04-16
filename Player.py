@@ -19,7 +19,7 @@ class Player:
         Record data from a completed game.
         Parameters: word (str): The target word
                     attempts (int): Number of attempts made
-                    success (bool): Whether the player guessed correctly
+                    success (bool): Whether the player guess it correct
                     time_taken (float): Time taken in seconds
         """
         self.games_played += 1
