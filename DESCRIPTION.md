@@ -1,4 +1,4 @@
-# NextPage
+# WordleTrack
 
 ### Introduction
 WordleTrack is a word puzzle game inspired by the classic Wordle, with enhanced data tracking and analytical insights. Players will guess a hidden word within a limited number of attempts (6 max). Each day, there will be two difficulty levels: 4-letter words and 5-letter words.
