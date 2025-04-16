@@ -35,5 +35,5 @@ pip install -r requirements.txt
 
 5. Run the application:
 ```
-python3 -m main.py
+python -m main.py
 ```
