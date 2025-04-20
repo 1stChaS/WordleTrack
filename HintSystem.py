@@ -180,16 +180,27 @@ class HintSystem:
         Returns: str: A hint to help the player
         """
         if not self.player_history:
-            return "Try starting with words that have common letters like E, A, R, I, O, T."
+            # First attempt suggestion based on letter frequency
+            return ("Try starting with words that contain common letters like E, A, R, I, O, T, N, S, L. "
+                    "Words like 'STARE', 'TEARS', or 'NOTES' make good first guesses.")
 
         # Choose hint type based on game progress
         num_attempts = len(self.player_history)
         if num_attempts == 1:
-            # the letters they should avoid
+            # Second attempt - suggest letters based on first feedback
             if self.incorrect_letters:
-                return f"Avoid these letters: {', '.join(sorted(self.incorrect_letters))}"
+                common_letters = "etaoinsrhdlucmfywgpbvkj"
+                remaining_common = [l for l in common_letters if l not in self.incorrect_letters
+                                    and l not in self.player_history[0][0]]
+
+                if remaining_common:
+                    top_suggestions = remaining_common[:3]
+                    return (f"Try these common letters next: {', '.join(top_suggestions).upper()}"
+                            f". Avoid: {', '.join(sorted(self.incorrect_letters))}")
+                else:
+                    return f"Avoid these letters: {', '.join(sorted(self.incorrect_letters))}"
             else:
-                return "Good start! Try to use different letters in your next guess."
+                return "Good start! Try to use completely different letters in your next guess to gather more information."
 
         elif num_attempts == 2:
             # correct letter positions
@@ -201,13 +212,11 @@ class HintSystem:
             elif self.yellow_letters:
                 return self.sort_hint(self.player_history[-1][0])
 
-        elif num_attempts == 3:
-            # possible words
-            return self._suggest_possible_word_pattern()
-
-        else:
-            if self.yellow_letters and num_attempts % 2 == 0:
+        elif 3 <= num_attempts <= 6:
+            if self.yellow_letters:
                 return self.sort_hint(self.player_history[-1][0])
+            elif len(self.correct_letters) >= 2:
+                return self._suggest_possible_word_pattern()
             else:
                 return self._suggest_letter()
 
