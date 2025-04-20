@@ -1,0 +1,8 @@
+# Use LF for all text files (cross-platform consistency)
+* text=auto
+
+# Explicitly set line endings for common file types
+*.py text eol=lf
+*.csv text eol=lf
+*.txt text eol=lf
+*.md  text eol=lf

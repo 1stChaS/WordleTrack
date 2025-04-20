@@ -22,7 +22,8 @@ class GameManager:
         self.main_frame = None
         self.root = root
         self.root.title("WordleTrack")
-        self.config = self.load_config()
+        self.data_manager = DataManager()
+        self.config = self.data_manager.load_config()
 
         # game parameters
         self.word_length = self.config['word_length']
@@ -31,14 +32,11 @@ class GameManager:
         self.game_active = False
         self.start_time = None
         self.difficulty = self.config['difficulty']
-        self.word_bank = WordBank()
-        self.player = self.load_player()
-        if not hasattr(self.player, 'name') or not self.player.name:
-            self.player.name = "Player1"
+        self.word_bank = WordBank()  # No filename parameter
+        self.player = Player(name="Player1")  # Initialize with default name
         self.current_word = None
         self.hint_system = HintSystem()
         self.analytics = AnalyticsEngine()
-        self.data_manager = DataManager()
         self.colors = self.config['colors']
         self.create_widgets()
         self.add_keyboard_bindings()
