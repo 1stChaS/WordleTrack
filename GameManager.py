@@ -4,26 +4,24 @@ from tkinter import messagebox, ttk
 import json
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from collections import Counter
 
 from WordBank import WordBank
 from HintSystem import HintSystem
 from AnalyticsEngine import AnalyticsEngine
 from Player import Player
-from DataManager import DataManager
 
 
 class GameManager:
     """Controls game flow and user interactions."""
 
     def __init__(self, root):
+        self.settings_button = None
         self.header_frame = None
         self.grid_frame = None
         self.main_frame = None
         self.root = root
         self.root.title("WordleTrack")
-        self.data_manager = DataManager()
-        self.config = self.data_manager.load_config()
+        self.config = self.load_config()
 
         # game parameters
         self.word_length = self.config['word_length']
@@ -44,16 +42,24 @@ class GameManager:
 
     @staticmethod
     def load_config():
-        """Load configuration or use defaults"""
-        with open('config.json', 'r') as f:
-            return json.load(f)
-
-    def load_player(self):
-        """Load player data or create new player"""
+        """Load configuration from file"""
         try:
-            return self.data_manager.load_player()
-        except:
-            return Player()
+            with open('config.json', 'r') as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"Error loading config: {e}")
+            return {
+                "word_length": 5,
+                "max_attempts": 6,
+                "difficulty": "medium",
+                "colors": {
+                    "correct": "#6aaa64",
+                    "present": "#c9b458",
+                    "absent": "#787c7e",
+                    "default": "#ffff",
+                    "text": "#0000"
+                }
+            }
 
     def create_widgets(self):
         """Create all the game widgets"""
@@ -454,7 +460,7 @@ class GameManager:
             "difficulty": self.difficulty,
             "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
         }
-        self.data_manager.save_player_data(self.player.name, game_data)
+        # self.data_manager.save_player_data(self.player.name, game_data)
         self.analytics.record_game(
             word=self.current_word,
             attempts=self.current_attempt + 1,

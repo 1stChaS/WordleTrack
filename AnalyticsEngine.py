@@ -25,7 +25,8 @@ class AnalyticsEngine:
         self.time_vs_attempts = []
         self.streak_history = []
 
-    def log_game_to_csv(self, word, attempts, success, time_taken, difficulty='medium', csv_file='data/history/history_record.csv'):
+    def log_game_to_csv(self, word, attempts, success, time_taken, difficulty='medium',
+                        csv_file='data/history/history_record.csv'):
         """
         Logs a game result to a CSV file for persistent tracking.
 
@@ -35,16 +36,37 @@ class AnalyticsEngine:
             success (bool): Whether the word was guessed.
             time_taken (float): Time taken in seconds.
             difficulty (str): Difficulty level ('easy', 'medium', 'hard').
-            csv_file (str): Output CSV file name.
+            csv_file (str): Output CSV file path.
         """
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(csv_file), exist_ok=True)
+
+        # Check if file exists and determine the next game number
         file_exists = os.path.isfile(csv_file)
+
+        if file_exists:
+            # Read the existing file to find the highest game number
+            try:
+                with open(csv_file, 'r') as file:
+                    reader = csv.reader(file)
+                    next(reader)  # Skip header
+                    game_numbers = [int(row[0]) for row in reader if row and row[0].isdigit()]
+                    next_game_number = max(game_numbers) + 1 if game_numbers else 1
+            except (IndexError, ValueError):
+                # Handle cases where file might be empty or corrupted
+                next_game_number = 1
+        else:
+            next_game_number = 1
+
+        # Write the new game record
         with open(csv_file, mode='a', newline='') as file:
             writer = csv.writer(file)
             if not file_exists:
-                writer.writerow(['game_number', 'word_length', 'word', 'attempts', 'result', 'time_taken', 'difficulty'])
-                self.games_played = 0
+                writer.writerow(
+                    ['game_number', 'word_length', 'word', 'attempts', 'result', 'time_taken', 'difficulty'])
+
             writer.writerow([
-                self.games_played + 1,
+                next_game_number,
                 len(word),
                 word,
                 attempts,
@@ -52,6 +74,9 @@ class AnalyticsEngine:
                 round(time_taken, 2),
                 difficulty
             ])
+
+        # Update the games_played attribute
+        self.games_played = next_game_number
 
     def record_game(self, word, attempts, success, time_taken, difficulty='medium'):
         """
