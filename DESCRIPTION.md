@@ -73,3 +73,6 @@ This table outlines the objectives of various graphs, the types of graphs used, 
 | **Difficulty Level vs. Success Rate** | Investigate if difficulty level affects success rate          | Bar Graph              | Difficulty Level         | Success Rate (%)     |
 | **Hint Usage Frequency**         | Compare hint usage across difficulty levels                        | Stacked Bar Graph      | Difficulty Level         | Hint Usage Count     |
 | **Time Taken per Round**         | Show the distribution of time taken per round                      | Line Graph             | Difficulty Level         | Time Taken           |
+
+## UML Class Diagram
+![image](screenshots/uml/uml_image.png)
