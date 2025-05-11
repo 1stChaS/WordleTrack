@@ -25,7 +25,7 @@ class AnalyticsEngine:
         self.time_vs_attempts = []
         self.streak_history = []
 
-    def log_game_to_csv(self, word, attempts, success, time_taken, difficulty='medium',
+    def log_game_to_csv(self, word, attempts, success, time_taken, difficulty='medium', hints_used=0,
                         csv_file='data/history/history_record.csv'):
         """
         Logs a game result to a CSV file for persistent tracking.
@@ -36,6 +36,7 @@ class AnalyticsEngine:
             success (bool): Whether the word was guessed.
             time_taken (float): Time taken in seconds.
             difficulty (str): Difficulty level ('easy', 'medium', 'hard').
+            hints_used (int): Number of hints used during the game.
             csv_file (str): Output CSV file path.
         """
         # Ensure directory exists
@@ -63,7 +64,8 @@ class AnalyticsEngine:
             writer = csv.writer(file)
             if not file_exists:
                 writer.writerow(
-                    ['game_number', 'word_length', 'word', 'attempts', 'result', 'time_taken', 'difficulty'])
+                    ['game_number', 'word_length', 'word', 'attempts', 'result', 'time_taken', 'difficulty',
+                     'hints_used'])
 
             writer.writerow([
                 next_game_number,
@@ -72,27 +74,25 @@ class AnalyticsEngine:
                 attempts,
                 'win' if success else 'loss',
                 round(time_taken, 2),
-                difficulty
+                difficulty,
+                hints_used
             ])
 
         # Update the games_played attribute
         self.games_played = next_game_number
 
-    def record_game(self, word, attempts, success, time_taken, difficulty='medium'):
+    def record_game(self, word, attempts, success, time_taken, difficulty='medium', hints_used=0):
         """
         Record data from a completed game.
         Parameters: word (str): The target word
-                    attempts (int): Number of attempts made
-                    success (bool): Whether the player guessed correctly
-                    time_taken (float): Time taken in seconds
-                    difficulty (str): Game difficulty level ('easy', 'medium', 'hard')
+        attempts (int): Number of attempts made
+        success (bool): Whether the player guessed correctly
+        time_taken (float): Time taken in seconds
+        difficulty (str): Game difficulty level ('easy', 'medium', 'hard')
+        hints_used (int): Number of hints used during the game
         """
         self.games_played += 1
         self.time_vs_attempts.append((time_taken, attempts, success))
-        # if success:
-        #     self.streak_history.append(self.streak_history[-1] + 1 if self.streak_history else 1)
-        # else:
-        #     self.streak_history.append(0)
 
         if success:
             self.games_won += 1
@@ -142,7 +142,7 @@ class AnalyticsEngine:
         stats['avg_attempts'] = new_avg
 
         # record in each round in csv
-        self.log_game_to_csv(word, attempts, success, time_taken, difficulty)
+        self.log_game_to_csv(word, attempts, success, time_taken, difficulty, hints_used)
 
     def record_letter_feedback(self, letter, position, status):
         """

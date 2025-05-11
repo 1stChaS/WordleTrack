@@ -451,23 +451,17 @@ class GameManager:
         """End the current game and save detailed records"""
         self.game_active = False
         time_taken = time.time() - self.start_time
-        game_data = {
-            "word": self.current_word,
-            "attempts": self.current_attempt + 1,
-            "success": success,
-            "time_taken": time_taken,
-            "hints_used": self.player.hints_used,
-            "difficulty": self.difficulty,
-            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
-        }
-        # self.data_manager.save_player_data(self.player.name, game_data)
+
+        # Record analytics with hints_used parameter
         self.analytics.record_game(
             word=self.current_word,
             attempts=self.current_attempt + 1,
             success=success,
             time_taken=time_taken,
-            difficulty=self.difficulty
+            difficulty=self.difficulty,
+            hints_used=self.player.hints_used
         )
+
         if success:
             message = f"You guessed the word: {self.current_word.upper()} in {self.current_attempt + 1} attempts!"
             messagebox.showinfo("Congratulations!", message)
@@ -630,45 +624,61 @@ class GameManager:
             canvas3.get_tk_widget().pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
             # 4. Hint Usage Frequency - Stacked Bar Graph
-            # Note: We're assuming the CSV doesn't have hint usage data, so we'll simulate it
-            # In a real implementation, you'd need to add hint usage data to your CSV
             hint_tab = ttk.Frame(notebook)
             notebook.add(hint_tab, text="Hint Usage Frequency")
             fig4 = plt.Figure(figsize=(7, 5), dpi=100)
             ax4 = fig4.add_subplot(111)
 
-            # Sample hint usage data (simulated)
-            # In a real implementation, replace this with actual data from your CSV
-            difficulty_levels = ['easy', 'medium', 'hard']
-            hint_types = ['Letter Hint', 'Word Hint', 'No Hint']
+            # Check if hints_used column exists in the dataframe
+            if 'hints_used' not in df.columns:
+                # Display a message if hint data is not available
+                ax4.text(0.5, 0.5, "Hint usage data not available in CSV.\nUpdate your game to track hints.",
+                         ha='center', va='center', fontsize=14)
+            else:
+                # Group by difficulty and calculate hint usage statistics
+                hint_stats = df.groupby('difficulty').agg(
+                    total_games=('game_number', 'count'),
+                    total_hints=('hints_used', 'sum')
+                ).reset_index()
 
-            # Create simulated data based on difficulty distribution in the real data
-            difficulty_counts = df['difficulty'].value_counts().reindex(difficulty_levels, fill_value=0)
+                # sdjfkdsfjskdfjs
+                # Calculate games with hints vs without hints
+                hint_stats['games_with_hints'] = df[df['hints_used'] > 0].groupby('difficulty').size().reindex(
+                    hint_stats['difficulty'], fill_value=0).values
+                hint_stats['games_without_hints'] = hint_stats['total_games'] - hint_stats['games_with_hints']
 
-            # Create random hint usage with more hints for harder difficulties
-            hint_data = {
-                'easy': [difficulty_counts['easy'] * 0.2, difficulty_counts['easy'] * 0.1,
-                         difficulty_counts['easy'] * 0.7],
-                'medium': [difficulty_counts['medium'] * 0.3, difficulty_counts['medium'] * 0.2,
-                           difficulty_counts['medium'] * 0.5],
-                'hard': [difficulty_counts['hard'] * 0.4, difficulty_counts['hard'] * 0.3,
-                         difficulty_counts['hard'] * 0.3]
-            }
+                # Ensure all difficulty levels are included
+                hint_stats = hint_stats.set_index('difficulty').reindex(difficulty_order).fillna(0).reset_index()
 
-            # Convert to numpy arrays for stacking
-            letter_hints = [hint_data[level][0] for level in difficulty_levels]
-            word_hints = [hint_data[level][1] for level in difficulty_levels]
-            no_hints = [hint_data[level][2] for level in difficulty_levels]
+                # Prepare data for stacked bar chart
+                no_hints = hint_stats['games_without_hints'].values
+                with_hints = hint_stats['games_with_hints'].values
 
-            width = 0.6
-            ax4.bar(difficulty_levels, letter_hints, width, label='Letter Hint', color='#42A5F5')
-            ax4.bar(difficulty_levels, word_hints, width, bottom=letter_hints, label='Word Hint', color='#7E57C2')
-            ax4.bar(difficulty_levels, no_hints, width, bottom=np.array(letter_hints) + np.array(word_hints),
-                    label='No Hint', color='#78909C')
+                # Create stacked bar chart
+                width = 0.6
+                ax4.bar(hint_stats['difficulty'], no_hints, width, label='No Hints Used', color='#78909C')
+                ax4.bar(hint_stats['difficulty'], with_hints, width, bottom=no_hints, label='Hints Used',
+                        color='#42A5F5')
+
+                # Add text labels
+                for i, diff in enumerate(hint_stats['difficulty']):
+                    # Label for no hints
+                    if no_hints[i] > 0:
+                        ax4.text(i, no_hints[i] / 2, str(int(no_hints[i])), ha='center', va='center', color='white')
+
+                    # Label for with hints
+                    if with_hints[i] > 0:
+                        ax4.text(i, no_hints[i] + with_hints[i] / 2, str(int(with_hints[i])), ha='center', va='center',
+                                 color='white')
+
+                    # Label for average hints per game
+                    if hint_stats['total_games'][i] > 0:
+                        avg_hints = hint_stats['total_hints'][i] / hint_stats['total_games'][i]
+                        ax4.text(i, no_hints[i] + with_hints[i] + 0.5, f"Avg: {avg_hints:.1f}", ha='center')
 
             ax4.set_title('Hint Usage Across Difficulty Levels', fontsize=14)
             ax4.set_xlabel('Difficulty Level', fontsize=12)
-            ax4.set_ylabel('Hint Usage Count', fontsize=12)
+            ax4.set_ylabel('Number of Games', fontsize=12)
             ax4.legend()
             ax4.grid(axis='y', linestyle='--', alpha=0.7)
 
