@@ -1,3 +1,6 @@
+import csv
+import os
+
 class AnalyticsEngine:
     """Collects and processes gameplay statistical data."""
 
@@ -15,11 +18,40 @@ class AnalyticsEngine:
             'medium': {'played': 0, 'won': 0, 'avg_attempts': 0},
             'hard': {'played': 0, 'won': 0, 'avg_attempts': 0}
         }
+        self.word_length_stats = {}  # {length: {'played': x, 'won': y, 'avg_attempts': z}}
         self.first_letters = {}
         self.difficulty_changes = []
         self.letter_frequency = {letter: 0 for letter in 'abcdefghijklmnopqrstuvwxyz'}
         self.time_vs_attempts = []
         self.streak_history = []
+
+    def log_game_to_csv(self, word, attempts, success, time_taken, difficulty='medium', csv_file='data/history/history_record.csv'):
+        """
+        Logs a game result to a CSV file for persistent tracking.
+
+        Parameters:
+            word (str): The target word of the game.
+            attempts (int): Number of guesses used.
+            success (bool): Whether the word was guessed.
+            time_taken (float): Time taken in seconds.
+            difficulty (str): Difficulty level ('easy', 'medium', 'hard').
+            csv_file (str): Output CSV file name.
+        """
+        file_exists = os.path.isfile(csv_file)
+        with open(csv_file, mode='a', newline='') as file:
+            writer = csv.writer(file)
+            if not file_exists:
+                writer.writerow(['game_number', 'word_length', 'word', 'attempts', 'result', 'time_taken', 'difficulty'])
+                self.games_played = 0
+            writer.writerow([
+                self.games_played + 1,
+                len(word),
+                word,
+                attempts,
+                'win' if success else 'loss',
+                round(time_taken, 2),
+                difficulty
+            ])
 
     def record_game(self, word, attempts, success, time_taken, difficulty='medium'):
         """
@@ -70,6 +102,22 @@ class AnalyticsEngine:
             prev_avg = self.difficulty_stats[diff]['avg_attempts']
             new_avg = (prev_avg * prev_count + attempts) / self.difficulty_stats[diff]['played']
             self.difficulty_stats[diff]['avg_attempts'] = new_avg
+
+        length = len(word)
+        if length not in self.word_length_stats:
+            self.word_length_stats[length] = {'played': 0, 'won': 0, 'avg_attempts': 0}
+
+        stats = self.word_length_stats[length]
+        stats['played'] += 1
+        if success:
+            stats['won'] += 1
+        prev_avg = stats['avg_attempts']
+        prev_count = stats['played'] - 1
+        new_avg = (prev_avg * prev_count + attempts) / stats['played']
+        stats['avg_attempts'] = new_avg
+
+        # record in each round in csv
+        self.log_game_to_csv(word, attempts, success, time_taken, difficulty)
 
     def record_letter_feedback(self, letter, position, status):
         """

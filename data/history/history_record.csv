@@ -1,0 +1,9 @@
+game_number,word_length,word,attempts,result,time_taken,difficulty
+1,5,coach,2,win,21.13,medium
+2,5,reedy,4,win,122.9,medium
+2,5,khaki,3,win,31.94,medium
+2,5,fleet,3,win,17.59,medium
+2,5,ladle,6,win,74.83,medium
+2,5,penny,3,win,32.03,medium
+2,5,ether,5,win,78.9,medium
+2,4,cool,4,win,104.29,easy

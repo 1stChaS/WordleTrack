@@ -1,1 +1,1 @@
-{"word_length": 4, "max_attempts": 6, "difficulty": "medium", "colors": {"correct": "#6aaa64", "present": "#c9b458", "absent": "#787c7e", "default": "#ffffff", "text": "#000000"}}
+{"word_length": 4, "max_attempts": 6, "difficulty": "easy", "colors": {"correct": "#6aaa64", "present": "#c9b458", "absent": "#787c7e", "default": "#ffffff", "text": "#000000"}}
