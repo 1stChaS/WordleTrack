@@ -49,3 +49,4 @@ game_number,word_length,word,attempts,result,time_taken,difficulty,hints_used
 48,5,timer,5,win,122.17,hard,4
 49,5,feign,4,win,43.14,hard,0
 50,5,craft,5,win,35.41,hard,2
+51,4,deem,6,win,107.46,easy,5

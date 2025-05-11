@@ -27,7 +27,7 @@ class WordBank:
     def load_words(self):
         """Load words from CSV files for different word lengths"""
         five_letter_path = "data/wordle/word_5.csv"
-        four_letter_path = "unformatted_word/unformatted_word_4.csv"
+        four_letter_path = "data/wordle/word_4.csv"
 
         if os.path.exists(five_letter_path):
             self._load_5_letter_words(five_letter_path)

@@ -7,8 +7,8 @@ input_word = "aahs abet able ably abut aced aces ache achy acid acme acne acre a
 word_4 = input_word.split()
 
 # File paths
-input_file = "../../WordleTrack/unformatted_word/unformatted_word_4.csv"
-output_file = "../../WordleTrack/data/wordle/word_4.csv"
+input_file = "../data/wordle/word_4.csv"
+output_file = "../data/wordle/word_4_delete.csv"
 
 # Make sure the directories exist
 os.makedirs(os.path.dirname(input_file), exist_ok=True)
