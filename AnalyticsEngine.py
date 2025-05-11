@@ -18,7 +18,7 @@ class AnalyticsEngine:
             'medium': {'played': 0, 'won': 0, 'avg_attempts': 0},
             'hard': {'played': 0, 'won': 0, 'avg_attempts': 0}
         }
-        self.word_length_stats = {}  # {length: {'played': x, 'won': y, 'avg_attempts': z}}
+        self.word_length_stats = {}
         self.first_letters = {}
         self.difficulty_changes = []
         self.letter_frequency = {letter: 0 for letter in 'abcdefghijklmnopqrstuvwxyz'}
